@@ -1,0 +1,10 @@
+#products-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.item-container {
+  display: flex;
+  flex-direction: column;
+}
