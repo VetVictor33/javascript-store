@@ -26,26 +26,30 @@ async function displayProducts() {
     const imagesDiv = document.createElement("div");
     imagesDiv.classList.add("images-container");
 
-    const productName = document.createElement("h3");
+    const productName = document.createElement("span");
     productName.textContent = product.productName;
 
-    const imgs = product.details.items[0].images.map((image) => {
+    let firstImg;
+
+    const imgs = product.details.items[0].images.map((image, index) => {
       const img = document.createElement("img");
-      img.classList.add("product-img");
       img.src = image.imageUrl;
       img.alt = image.imageText;
+      console.log(index);
+      if (index === 0) {
+        firstImg = img.cloneNode();
+        firstImg.classList.add("main-img");
+      }
+      img.classList.add("product-img");
       img.addEventListener("click", handleChangeImgSrc);
       return img;
     });
 
-    const [firstImg] = imgs;
-    const clonedFirstImg = firstImg.cloneNode();
-    clonedFirstImg.classList.add("main-img");
-
     const price = document.createElement("p");
-    const fullPriceValue =
+    price.classList.add("price");
+    const priceValue =
       product.details.items[0].sellers[0].commertialOffer.PriceWithoutDiscount;
-    price.textContent = `R$ ${fullPriceValue}`;
+    price.textContent = `R$ ${priceValue}`;
 
     const promotionPrice = document.createElement("p");
     const promoPriceValue =
@@ -58,13 +62,15 @@ async function displayProducts() {
     const productsContainer = document.querySelector("#products-container");
 
     imgs.forEach((img) => imagesDiv.appendChild(img));
+    mainDiv.appendChild(firstImg);
     mainDiv.appendChild(productName);
-    mainDiv.appendChild(clonedFirstImg);
     mainDiv.appendChild(imagesDiv);
     mainDiv.appendChild(price);
-    if (fullPriceValue !== promoPriceValue) {
+    if (priceValue != promoPriceValue) {
       mainDiv.appendChild(promotionPrice);
-      price.style.textDecoration = "line-through";
+      price.classList.add("old-price");
+      price.classList.remove("price");
+      promotionPrice.classList.add("price");
     }
     mainDiv.appendChild(button);
     productsContainer.appendChild(mainDiv);
@@ -85,24 +91,17 @@ function productsShownController() {
 }
 
 function setInitialProductsShown() {
-  const mobile = isMobile();
-  const productsShown = mobile ? 2 : 5;
+  const breakpoint = getScreenBreakpoint();
+  const productsShown = breakpoint ? 2 : 5;
   handleChangeDisplayedProductsHTML(productsShown);
 }
 
 function handleChangeDisplayedProductsClick() {
-  const mobile = isMobile();
   const productsToggler = document.querySelector("#toggle-products");
 
   const productsShown = parseInt(productsToggler.textContent.split(" ")[1]);
 
-  const newProductsShown = mobile
-    ? productsShown === 2
-      ? 1
-      : 2
-    : productsShown === 5
-    ? 4
-    : 5;
+  const newProductsShown = productsShown == 5 ? 1 : productsShown + 1;
 
   handleChangeDisplayedProductsHTML(newProductsShown);
 }
@@ -110,18 +109,54 @@ function handleChangeDisplayedProductsClick() {
 function handleChangeDisplayedProductsHTML(productsShown) {
   const productsToggler = document.querySelector("#toggle-products");
   const productsContainer = document.querySelector("#products-container");
-  productsToggler.textContent = `Mostrando ${productsShown} produtos`;
+  productsToggler.textContent = `Mostrando ${productsShown} produto${
+    productsShown > 1 ? "s" : ""
+  }`;
   productsContainer.style.gridTemplateColumns = `repeat(${productsShown}, 1fr)`;
 }
 
 function handleResize() {
-  const mobile = isMobile();
-  const productsShown = mobile ? 2 : 5;
+  const productsShown = getGridBasedOnBreakpoint();
   setInitialProductsShown(productsShown);
 }
 
-function isMobile() {
-  return window.innerWidth <= 768;
+function getScreenBreakpoint() {
+  const width = window.innerWidth;
+
+  let breakpoint;
+  if (width <= 576) {
+    breakpoint = "xs";
+  } else if (width <= 768) {
+    breakpoint = "sm";
+  } else if (width <= 992) {
+    breakpoint = "md";
+  } else {
+    breakpoint = "lg";
+  }
+  return breakpoint;
+}
+
+function getGridBasedOnBreakpoint() {
+  const breakpoint = getScreenBreakpoint();
+  let grid;
+  switch (breakpoint) {
+    case "xs":
+      grid = 1;
+      break;
+    case "sm":
+      grid = 2;
+      break;
+    case "md":
+      grid = 3;
+      break;
+    case "lg":
+      grid = 4;
+      break;
+    default:
+      grid = 5;
+      break;
+  }
+  return grid;
 }
 
 function handleChangeImgSrc(event) {
