@@ -20,8 +20,8 @@ async function displayProducts() {
   );
 
   detailedProducts.forEach((product) => {
-    const mainDiv = document.createElement("div");
-    mainDiv.classList.add("product-container");
+    const productDiv = document.createElement("div");
+    productDiv.classList.add("product-container");
 
     const imagesDiv = document.createElement("div");
     imagesDiv.classList.add("images-container");
@@ -62,18 +62,18 @@ async function displayProducts() {
     const productsContainer = document.querySelector("#products-container");
 
     imgs.forEach((img) => imagesDiv.appendChild(img));
-    mainDiv.appendChild(firstImg);
-    mainDiv.appendChild(productName);
-    mainDiv.appendChild(imagesDiv);
-    mainDiv.appendChild(price);
+    productDiv.appendChild(firstImg);
+    productDiv.appendChild(productName);
+    productDiv.appendChild(imagesDiv);
+    productDiv.appendChild(price);
     if (priceValue != promoPriceValue) {
-      mainDiv.appendChild(promotionPrice);
+      productDiv.appendChild(promotionPrice);
       price.classList.add("old-price");
       price.classList.remove("price");
       promotionPrice.classList.add("price");
     }
-    mainDiv.appendChild(button);
-    productsContainer.appendChild(mainDiv);
+    productDiv.appendChild(button);
+    productsContainer.appendChild(productDiv);
   });
 }
 
@@ -91,8 +91,7 @@ function productsShownController() {
 }
 
 function setInitialProductsShown() {
-  const breakpoint = getScreenBreakpoint();
-  const productsShown = breakpoint ? 2 : 5;
+  const productsShown = getGridBasedOnBreakpoints();
   handleChangeDisplayedProductsHTML(productsShown);
 }
 
@@ -116,27 +115,10 @@ function handleChangeDisplayedProductsHTML(productsShown) {
 }
 
 function handleResize() {
-  const productsShown = getGridBasedOnBreakpoint();
-  setInitialProductsShown(productsShown);
+  setInitialProductsShown();
 }
 
-function getScreenBreakpoint() {
-  const width = window.innerWidth;
-
-  let breakpoint;
-  if (width <= 576) {
-    breakpoint = "xs";
-  } else if (width <= 768) {
-    breakpoint = "sm";
-  } else if (width <= 992) {
-    breakpoint = "md";
-  } else {
-    breakpoint = "lg";
-  }
-  return breakpoint;
-}
-
-function getGridBasedOnBreakpoint() {
+function getGridBasedOnBreakpoints() {
   const breakpoint = getScreenBreakpoint();
   let grid;
   switch (breakpoint) {
@@ -157,6 +139,24 @@ function getGridBasedOnBreakpoint() {
       break;
   }
   return grid;
+}
+
+function getScreenBreakpoint() {
+  const width = window.innerWidth;
+
+  let breakpoint;
+  if (width <= 576) {
+    breakpoint = "xs";
+  } else if (width <= 768) {
+    breakpoint = "sm";
+  } else if (width <= 992) {
+    breakpoint = "md";
+  } else if (width <= 1200) {
+    breakpoint = "lg";
+  } else {
+    breakpoint = "xl";
+  }
+  return breakpoint;
 }
 
 function handleChangeImgSrc(event) {
