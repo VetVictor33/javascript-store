@@ -45,6 +45,9 @@ async function displayProducts() {
       return img;
     });
 
+    const pricesDiv = document.createElement("div");
+    pricesDiv.classList.add("prices-container");
+
     const price = document.createElement("p");
     price.classList.add("price");
     const priceValue =
@@ -65,9 +68,10 @@ async function displayProducts() {
     productDiv.appendChild(firstImg);
     productDiv.appendChild(productName);
     productDiv.appendChild(imagesDiv);
-    productDiv.appendChild(price);
+    productDiv.appendChild(pricesDiv);
+    pricesDiv.appendChild(price);
     if (priceValue != promoPriceValue) {
-      productDiv.appendChild(promotionPrice);
+      pricesDiv.appendChild(promotionPrice);
       price.classList.add("old-price");
       price.classList.remove("price");
       promotionPrice.classList.add("price");
@@ -83,25 +87,24 @@ function productsShownController() {
   const productsContainer = document.querySelector("main");
   productsContainer.insertBefore(productsToggler, productsContainer.firstChild);
 
-  setInitialProductsShown();
+  setProductsShown();
 
   productsToggler.addEventListener("click", handleChangeDisplayedProductsClick);
 
   window.addEventListener("resize", handleResize);
 }
 
-function setInitialProductsShown() {
+function setProductsShown() {
   const productsShown = getGridBasedOnBreakpoints();
   handleChangeDisplayedProductsHTML(productsShown);
 }
 
 function handleChangeDisplayedProductsClick() {
   const productsToggler = document.querySelector("#toggle-products");
-
   const productsShown = parseInt(productsToggler.textContent.split(" ")[1]);
 
-  const newProductsShown = productsShown == 5 ? 1 : productsShown + 1;
-
+  const newProductsShown =
+    getNewProductsShownBasedOnScreenSizeThreshold(productsShown);
   handleChangeDisplayedProductsHTML(newProductsShown);
 }
 
@@ -115,7 +118,7 @@ function handleChangeDisplayedProductsHTML(productsShown) {
 }
 
 function handleResize() {
-  setInitialProductsShown();
+  setProductsShown();
 }
 
 function getGridBasedOnBreakpoints() {
@@ -142,21 +145,43 @@ function getGridBasedOnBreakpoints() {
 }
 
 function getScreenBreakpoint() {
-  const width = window.innerWidth;
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
 
   let breakpoint;
   if (width <= 576) {
     breakpoint = "xs";
-  } else if (width <= 768) {
+  } else if (width <= 900) {
     breakpoint = "sm";
-  } else if (width <= 992) {
-    breakpoint = "md";
   } else if (width <= 1200) {
+    breakpoint = "md";
+  } else if (width <= 1500) {
     breakpoint = "lg";
   } else {
     breakpoint = "xl";
   }
   return breakpoint;
+}
+
+function getNewProductsShownBasedOnScreenSizeThreshold(productsShown) {
+  const screenWidth =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
+
+  const productContainerWidth = 300;
+
+  const maxProducts = Math.floor(screenWidth / productContainerWidth);
+
+  let newProductsShown = productsShown == maxProducts ? 1 : productsShown + 1;
+
+  if (newProductsShown > maxProducts) {
+    newProductsShown = maxProducts;
+  }
+
+  return newProductsShown;
 }
 
 function handleChangeImgSrc(event) {
